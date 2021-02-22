@@ -1,0 +1,36 @@
+{
+    "name": "piggly/hooks",
+    "description": "Controls the hooks that will be executed when a specific TAG has called.",
+    "keywords": [
+        "piggly",
+        "security",
+        "encryption",
+        "sign",
+        "url"
+    ],
+    "type": "library",
+    "homepage": "https://github.com/piggly-dev/hooks",
+    "autoload": {
+        "psr-4": {
+            "Piggly\\Hooks\\": "src"
+        }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Caique Araujo",
+            "email": "caique@studiopiggly.com.br",
+            "homepage": "https://github.com/caiquearaujo",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.4"
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}

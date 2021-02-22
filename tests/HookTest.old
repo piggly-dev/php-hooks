@@ -1,0 +1,234 @@
+<?php
+namespace Piggly\Tests\Hooks;
+
+use Piggly\Hooks\Hook;
+
+use Piggly\Hooks\Exceptions\ActionNotFoundException;
+use Piggly\Hooks\Exceptions\MethodNotFoundException;
+use Piggly\Hooks\Exceptions\NameNotFoundException;
+use Piggly\Hooks\Exceptions\TagNotFoundException;
+
+/**
+ * Tests to class \Piggly\Hooks\Hook.
+ *
+ *
+ * @author      Caique M Araujo <caique@studiopiggly.com.br>
+ * @link        https://github.com/itscaiqueck
+ * @author      Piggly <dev@piggly.com.br>
+ * @link        https://github.com/piggly-dev
+ *
+ * @copyright   2018
+ * @license     ./LICENSE GNU General Public License v3.0
+ * @package     \Piggly\Tests\Hooking
+ *
+ * @version     1.0.0
+ */
+class HookTest extends \PHPUnit\Framework\TestCase
+{
+    /**
+     * @var     \Piggly\Hooks\Hook       Object to test.
+     * @access  protected
+     * @since   1.0.0
+     */
+	protected $hook;
+
+	/**
+	 * Defaults.
+	 *
+	 * @return 	void
+     * @access 	public
+     * @since 	1.0.0
+	 */
+	public function setUp()
+	{ $this->hook = Hook::getInstance(); }
+
+	/**
+	 *
+	 * @covers 	Hook::bind
+	 * @return 	boolean 							Test result.
+     * @see 	\Piggly\Hooks\Hook
+     * @access 	public
+     * @since 	1.0.0
+	 */
+	public function testFunctionNonExistent ()
+	{
+		$this->expectException( ActionNotFoundException::class );
+		$this->hook->bind( 'header', 'functionNonExistent' );
+	}
+
+	/**
+	 *
+	 * @covers 	Hook::bind
+	 * @return 	boolean 							Test result.
+     * @see 	\Piggly\Hooks\Hook
+     * @access 	public
+     * @since 	1.0.0
+	 */
+	public function testMethodNonStaticNonExistent ()
+	{
+		$this->expectException( MethodNotFoundException::class );
+
+		$n = new \NonStaticObj('Clark');
+		$this->hook->bind( 'header', $n, 'methodNonExistent' );
+	}
+
+	/**
+	 *
+	 * @covers 	Hook::bind
+	 * @return 	boolean 							Test result.
+     * @see 	\Piggly\Hooks\Hook
+     * @access 	public
+     * @since 	1.0.0
+	 */
+	public function testMethodStaticNonExistent ()
+	{
+		$this->expectException( MethodNotFoundException::class );
+		$this->hook->bind( 'header', 'StaticObj', 'methodNonExistent' );
+	}
+
+	/**
+	 *
+	 * @covers 	Hook::run
+	 * @return 	boolean 							Test result.
+     * @see 	\Piggly\Hooks\Hook
+     * @access 	public
+     * @since 	1.0.0
+	 */
+	public function testRunFunction ()
+	{
+		$this->hook->resetAll();
+		$this->expectOutputString( 'Your name is Caique and this is the function showTheName().' );
+
+		$this->hook->bind( 'header', 'showTheName', 'Caique' );
+		$this->hook->run( 'header' );
+	}
+
+	/**
+	 *
+	 * @covers 	Hook::run
+	 * @return 	boolean 							Test result.
+     * @see 	\Piggly\Hooks\Hook
+     * @access 	public
+     * @since 	1.0.0
+	 */
+	public function testRunNonExistentTag ()
+	{
+		$this->expectException ( TagNotFoundException::class );
+		$this->hook->run( 'footer' );
+	}
+
+	/**
+	 *
+	 * @covers 	Hook::run
+	 * @return 	boolean 							Test result.
+     * @see 	\Piggly\Hooks\Hook
+     * @access 	public
+     * @since 	1.0.0
+	 */
+	public function testRunNonStaticObj ()
+	{
+		$this->hook->resetAll();
+		$this->expectOutputString( 'Your name is CAIQUE ARAUJO and this is the function NonStaticObj->showTheName().' );
+
+		$n = new \NonStaticObj( 'Caique' );
+
+		$this->hook->bind( 'header', $n, 'showTheName', 'Araujo' );
+		$this->hook->run( 'header' );
+	}
+
+	/**
+	 *
+	 * @covers 	Hook::run
+	 * @return 	boolean 							Test result.
+     * @see 	\Piggly\Hooks\Hook
+     * @access 	public
+     * @since 	1.0.0
+	 */
+	public function testRunStaticObj ()
+	{
+		$this->hook->resetAll();
+		$this->expectOutputString( 'Your name is Caique Araujo and this is the function StaticObj::showTheName().' );
+
+		$this->hook->bind( 'header', 'StaticObj', 'showTheName', 'Caique', 'Araujo' );
+		$this->hook->run( 'header' );
+	}
+
+	/**
+	 *
+	 * @covers 	Hook::run
+	 * @return 	boolean 							Test result.
+     * @see 	\Piggly\Hooks\Hook
+     * @access 	public
+     * @since 	1.0.0
+	 */
+	public function testRunPriority ()
+	{
+		$this->hook->resetAll();
+		$this->expectOutputString( 'P:1;P:5;P:5;P:11;' );
+
+		$this->hook->bind( 'header', 5, 'showPriority', 5 );
+		$this->hook->bind( 'header', 11, 'showPriority', 11 );
+		$this->hook->bind( 'header', 1, 'showPriority', 1 );
+		$this->hook->bind( 'header', 5, 'showPriority', 5 );
+
+		$this->hook->run( 'header' );
+	}
+
+	/**
+	 *
+	 * @covers 	Hook::runByName
+	 * @return 	boolean 							Test result.
+     * @see 	\Piggly\Hooks\Hook
+     * @access 	public
+     * @since 	1.0.0
+	 */
+	public function testRunByName ()
+	{
+		$this->hook->resetAll();
+		$this->expectOutputString( 'Your name is Caique and this is the function showTheName().' );
+
+		$this->hook->bind( 'header', 'showTheName', 'Caique' )->name('my-function');
+		$this->hook->bind( 'header', 'showTheName', 'Piggly' );
+
+		$this->hook->runByName( 'header', 'my-function' );
+	}
+
+	/**
+	 *
+	 * @covers 	Hook::runByName
+	 * @return 	boolean 							Test result.
+     * @see 	\Piggly\Hooks\Hook
+     * @access 	public
+     * @since 	1.0.0
+	 */
+	public function testRunByNameNonExistentName ()
+	{
+		$this->expectException ( NameNotFoundException::class );
+
+		$this->hook->resetAll();
+		$this->hook->bind( 'header', 'showTheName', 'Piggly' );
+
+		$this->hook->runByName( 'header', 'my-what' );
+	}
+
+	/**
+	 *
+	 * @covers 	Hook::removeByName
+	 * @return 	boolean 							Test result.
+     * @see 	\Piggly\Hooks\Hook
+     * @access 	public
+     * @since 	1.0.0
+	 */
+	public function testRemoveByName ()
+	{
+		$this->hook->resetAll();
+		$this->expectOutputString( 'Your name is Piggly and this is the function showTheName().' );
+
+		$this->hook->bind( 'header', 'showTheName', 'Caique' )->name('my-function');
+		$this->hook->bind( 'header', 'showTheName', 'Piggly' );
+
+		$this->hook->removeByName( 'header', 'my-function' );
+		$this->hook->run( 'header' );
+	}
+
+}
