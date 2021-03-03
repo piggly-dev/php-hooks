@@ -9,7 +9,7 @@
         "url"
     ],
     "type": "library",
-    "homepage": "https://github.com/piggly-dev/hooks",
+    "homepage": "https://github.com/piggly-dev/php-hooks",
     "autoload": {
         "psr-4": {
             "Piggly\\Hooks\\": "src"
