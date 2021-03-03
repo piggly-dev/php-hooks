@@ -1,5 +1,5 @@
 {
-    "name": "piggly/hooks",
+    "name": "piggly/php-hooks",
     "description": "Controls the hooks that will be executed when a specific TAG has called.",
     "keywords": [
         "piggly",
